@@ -30,7 +30,7 @@ void app_main(void)
 
         // bsp_lcd_set_color(0x07E0); // 绿色
         // bsp_lcd_draw_image(0,0,240,320,(uint16_t *)gImage_YUNO);
-        test_display();
+        // test_display();
         vTaskDelay(1000 / portTICK_PERIOD_MS);
 
         // bsp_lcd_set_color(0x001F); // 蓝色

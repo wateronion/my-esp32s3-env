@@ -32,7 +32,7 @@ void bsp_lcd_init(void)
     esp_lcd_panel_io_spi_config_t io_config = {
         .dc_gpio_num = LCD_PIN_NUM_DC, // 连接 LCD DC（RS） 信号的 IO 编号，可以设为 `-1` 表示不使用
         .cs_gpio_num = -1,             // 连接 LCD CS 信号的 IO 编号，可以设为 `-1` 表示不使用
-        .pclk_hz = 80 * 1000 * 1000,   // SPI 的时钟频率（Hz），ESP 最高支持 80M（SPI_MASTER_FREQ_80M）
+        .pclk_hz = 40 * 1000 * 1000,   // SPI 的时钟频率（Hz），ESP 最高支持 80M（SPI_MASTER_FREQ_80M）
                                        // 需根据 LCD 驱动 IC 的数据手册确定其最大值
         .lcd_cmd_bits = 8,             // 单位 LCD 命令的比特数，应为 8 的整数倍
         .lcd_param_bits = 8,           // 单位 LCD 参数的比特数，应为 8 的整数倍

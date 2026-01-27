@@ -2,6 +2,7 @@
 #include "esp_log.h"
 #include "bsp_lcd.h"
 #include "display/logo.h"
+#include "display/pic.h"
 
 #define TAG "BSP_UART"
 
@@ -32,6 +33,7 @@ void uart1_rx_task(void *pvParameters)
     char green[] = "green";
     char blue[] = "blue";
     char logo[] = "logo";
+    char yuno[] = "yuno";
 
     while (1)
     {
@@ -78,6 +80,11 @@ void uart1_rx_task(void *pvParameters)
             {
                 bsp_lcd_draw_image(0, 0, 240, 240, (const uint16_t *)logo_en_240x240_lcd);
                 uart_write_bytes(UART_NUM_1, (const char *)"show logo\r\n", strlen("show logo\r\n"));
+            }
+            else if (!strcmp((const char *)data, yuno))
+            {
+                bsp_lcd_draw_image(0,0,240,320,(uint16_t *)gImage_YUNO);
+                uart_write_bytes(UART_NUM_1, (const char *)"show yuno\r\n", strlen("show yuno\r\n"));
             }
 
 
