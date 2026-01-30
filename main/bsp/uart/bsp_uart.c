@@ -24,7 +24,7 @@ void bsp_uart_init(uart_port_t uart_num, uint32_t baudrate, uint8_t rx_pin, uint
 
 void uart1_rx_task(void *pvParameters)
 {
-    bsp_uart_init(UART_NUM_1, 115200, 2, 1);
+    bsp_uart_init(UART_NUM_1, 115200, 11, 12);
 
     uint8_t data[RX_BUF_SIZE] = {0};
     // uint8_t temp[55] = {0};
@@ -34,6 +34,7 @@ void uart1_rx_task(void *pvParameters)
     char blue[] = "blue";
     char logo[] = "logo";
     char yuno[] = "yuno";
+    char rotate[] = "rotate";
 
     while (1)
     {
@@ -85,6 +86,12 @@ void uart1_rx_task(void *pvParameters)
             {
                 bsp_lcd_draw_image(0,0,240,320,(uint16_t *)gImage_YUNO);
                 uart_write_bytes(UART_NUM_1, (const char *)"show yuno\r\n", strlen("show yuno\r\n"));
+            }
+            else if (!strcmp((const char *)data, rotate))
+            {
+                lv_display_rotation_t rotation = data[6];
+                bsp_lcd_set_rotation(rotation);
+                uart_write_bytes(UART_NUM_1, (const char *)"set rotation\r\n", strlen("set rotation\r\n"));
             }
 
 

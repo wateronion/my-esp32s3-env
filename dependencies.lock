@@ -1,4 +1,28 @@
 dependencies:
+  espressif/esp_lcd_touch:
+    component_hash: 3f85a7d95af876f1a6ecca8eb90a81614890d0f03a038390804e5a77e2caf862
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.4.2'
+    source:
+      registry_url: https://components.espressif.com
+      type: service
+    version: 1.2.1
+  espressif/esp_lcd_touch_ft5x06:
+    component_hash: aa3f170c321859146b4084d5e168828d026cb7c67eebfaa524ce48b428182c1e
+    dependencies:
+    - name: espressif/esp_lcd_touch
+      registry_url: https://components.espressif.com
+      require: public
+      version: ^1.2.0
+    - name: idf
+      require: private
+      version: '>=4.4.2'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.1.0
   idf:
     source:
       type: idf
@@ -11,8 +35,9 @@ dependencies:
       type: service
     version: 9.4.0
 direct_dependencies:
+- espressif/esp_lcd_touch_ft5x06
 - idf
 - lvgl/lvgl
-manifest_hash: 9c3294211aed2766b20ecd92f6dca20ff9fcdacb64298f99ef385b909c7f0c36
+manifest_hash: 07f1662bf923ed9a3930ae85074625ad827594a73051fe55e35d3dc08dba383f
 target: esp32s3
 version: 2.0.0

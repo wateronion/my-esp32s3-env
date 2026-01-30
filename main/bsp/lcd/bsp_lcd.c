@@ -1,17 +1,24 @@
 #include "bsp_lcd.h"
 #include "lvgl.h"
 #include "driver/spi_master.h"
+#include "driver/i2c_master.h"
 #include "esp_check.h"
 #include "esp_log.h"
 #include "esp_err.h"
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_vendor.h"
 #include "esp_lcd_panel_ops.h"
+#include "esp_lcd_touch.h"
+#include "esp_lcd_touch_ft5x06.h"
+
 
 #define TAG "BSP_LCD"
-static esp_lcd_panel_handle_t panel_handle = NULL;
+#define TOUCH_MAX_POINTS  1
 
-void bsp_lcd_init(void)
+static esp_lcd_panel_handle_t panel_handle = NULL;
+static esp_lcd_touch_handle_t touch_handle = NULL;
+
+void bsp_lcd_display_init(void)
 {
     ESP_LOGI(TAG, "Initialize SPI bus");
     spi_bus_config_t buscfg = {
@@ -31,7 +38,7 @@ void bsp_lcd_init(void)
     esp_lcd_panel_io_handle_t io_handle = NULL;
     esp_lcd_panel_io_spi_config_t io_config = {
         .dc_gpio_num = LCD_PIN_NUM_DC, // 连接 LCD DC（RS） 信号的 IO 编号，可以设为 `-1` 表示不使用
-        .cs_gpio_num = -1,             // 连接 LCD CS 信号的 IO 编号，可以设为 `-1` 表示不使用
+        .cs_gpio_num = LCD_PIN_NUM_CS, // 连接 LCD CS 信号的 IO 编号，可以设为 `-1` 表示不使用
         .pclk_hz = 40 * 1000 * 1000,   // SPI 的时钟频率（Hz），ESP 最高支持 80M（SPI_MASTER_FREQ_80M）
                                        // 需根据 LCD 驱动 IC 的数据手册确定其最大值
         .lcd_cmd_bits = 8,             // 单位 LCD 命令的比特数，应为 8 的整数倍
@@ -57,26 +64,45 @@ void bsp_lcd_init(void)
 
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle)); // 复位 LCD 面板
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));  // 初始化 LCD 面板
+
+    // ST7789 240×320 初始化指令（解决分辨率错位）
+    // const uint8_t st7789_init_cmds[] = {
+    //     0x36, 1, 0x00,  // MADCTL：MY=0, MX=0, MV=0 → 基础竖屏（先恢复原始方向）
+    //     0x3A, 1, 0x05,  // COLMOD：16位色
+    //     0x2A, 4, 0x00, 0x40, 0x00, 0xEF,  // CASET：列地址范围（40-279）→ 240列（279-40+1=240）
+    //     0x2B, 4, 0x00, 0x00, 0x01, 0x3F,  // RASET：行地址范围（0-319）→ 320行（319-0+1=320）
+    //     // 0x21, 0,        // INVON：开启颜色反转（根据面板调整，若颜色反了就注释）
+    //     0x11, 0,        // SLPOUT：退出睡眠
+    //     0x29, 0,        // DISPON：开启显示
+    // };
+    // for (int i = 0; i < sizeof(st7789_init_cmds);) {
+    //     uint8_t cmd = st7789_init_cmds[i++];
+    //     uint8_t param_len = st7789_init_cmds[i++];
+    //     esp_lcd_panel_io_tx_param(io_handle, cmd, &st7789_init_cmds[i], param_len);
+    //     i += param_len;
+    // }
+
     // ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true)); // 反转 LCD 面板的颜色
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true)); // 打开 LCD 显示
-    // ESP_ERROR_CHECK(esp_lcd_panel_set_rotation(panel_handle, 3)); // 设置 LCD 的旋转角度
-    // ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, true)); // 设置 LCD 的镜像
+    // ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, true));    // 交换 LCD 的 X 和 Y 轴
+    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, true)); // 设置 LCD 的镜像
 
     bsp_lcd_set_color(0x0000); // 清屏
 }
 
 void bsp_lcd_set_color(uint16_t color)
 {
-    uint16_t color_data[LCD_WIDTH];
-    for (int i = 0; i < LCD_WIDTH; i++)
-    {
-        color_data[i] = color;
+    // 预生成全屏颜色数据
+    static uint16_t *full_screen_buf = NULL;
+    if (full_screen_buf == NULL) {
+        full_screen_buf = heap_caps_malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t), MALLOC_CAP_DMA);
+        ESP_ERROR_CHECK(full_screen_buf != NULL ? ESP_OK : ESP_ERR_NO_MEM);
+    }
+    for (int i = 0; i < LCD_WIDTH * LCD_HEIGHT; i++) {
+        full_screen_buf[i] = color;
     }
 
-    for (int y = 0; y < LCD_HEIGHT; y++)
-    {
-        ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(panel_handle, 0, y, LCD_WIDTH, y + 1, color_data));
-    }
+    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, LCD_WIDTH, LCD_HEIGHT, full_screen_buf));
 }
 
 void bsp_lcd_draw_image(int x, int y, int width, int height, const uint16_t *image_data)
@@ -84,25 +110,39 @@ void bsp_lcd_draw_image(int x, int y, int width, int height, const uint16_t *ima
     ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(panel_handle, x, y, x + width, y + height, (uint16_t *)image_data));
 }
 
+void bsp_lcd_touch_init(void)
+{
+    
+}
+
+void bsp_lcd_set_rotation(lv_display_rotation_t rotation)
+{
+    switch (rotation)
+    {
+    case LV_DISPLAY_ROTATION_0:
+        ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, false));
+        ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, true));
+        break;
+    case LV_DISPLAY_ROTATION_90:
+        ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, true));
+        ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, false));
+        break;
+    case LV_DISPLAY_ROTATION_180:
+        ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, false));
+        ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, false, false));
+        break;
+    case LV_DISPLAY_ROTATION_270:
+        ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, true));
+        ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, false, true));
+        break;
+    default:
+        break;
+    }
+}
+
 // void bsp_display_task(void *arg)
 // {
 //     bsp_lcd_init();
 // }
 
-void test_display(void)
-{
-    uint16_t red_line[LCD_HEIGHT] = {0};
-    uint16_t green_line[LCD_HEIGHT] = {0};
 
-    for (int i = 0; i < LCD_HEIGHT; i++)
-    {
-        red_line[i] = 0xF800;
-        green_line[i] = 0x07E0;
-    }
-
-    // 画一条红色的线在左侧
-    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, 1, LCD_HEIGHT, red_line));
-
-    // 画一条绿色的线在右侧
-    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(panel_handle, LCD_WIDTH - 1, 0, LCD_WIDTH, LCD_HEIGHT, green_line));
-}
