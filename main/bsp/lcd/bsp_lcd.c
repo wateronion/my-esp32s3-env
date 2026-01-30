@@ -1,4 +1,5 @@
 #include "bsp_lcd.h"
+#include "hal/i2c_types.h"
 #include "lvgl.h"
 #include "driver/spi_master.h"
 #include "driver/i2c_master.h"
@@ -8,7 +9,6 @@
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_vendor.h"
 #include "esp_lcd_panel_ops.h"
-#include "esp_lcd_touch.h"
 #include "esp_lcd_touch_ft5x06.h"
 
 
@@ -16,7 +16,7 @@
 #define TOUCH_MAX_POINTS  1
 
 static esp_lcd_panel_handle_t panel_handle = NULL;
-static esp_lcd_touch_handle_t touch_handle = NULL;
+// static esp_lcd_touch_handle_t touch_handle = NULL;
 
 void bsp_lcd_display_init(void)
 {
@@ -110,9 +110,43 @@ void bsp_lcd_draw_image(int x, int y, int width, int height, const uint16_t *ima
     ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(panel_handle, x, y, x + width, y + height, (uint16_t *)image_data));
 }
 
-void bsp_lcd_touch_init(void)
+void bsp_lcd_touch_init(esp_lcd_touch_handle_t *ret_touch)
 {
-    
+    ESP_LOGI(TAG, "Initialize I2C bus (new driver)");
+    i2c_master_bus_handle_t bus_handle = NULL;
+    i2c_master_bus_config_t bus_cfg = {
+        .i2c_port = I2C_NUM_0,
+        .sda_io_num = LCD_PIN_NUM_TOUCH_SDA,
+        .scl_io_num = LCD_PIN_NUM_TOUCH_SCL,
+        .clk_source = I2C_CLK_SRC_DEFAULT,
+        .glitch_ignore_cnt = 7,
+        .flags.enable_internal_pullup = true,
+    };
+    ESP_ERROR_CHECK(i2c_new_master_bus(&bus_cfg, &bus_handle));
+
+    esp_lcd_panel_io_handle_t tp_io_handle = NULL;
+    esp_lcd_panel_io_i2c_config_t tp_io_config = ESP_LCD_TOUCH_IO_I2C_FT5x06_CONFIG();
+    // tp_io_config.scl_speed_hz = 100000;
+
+    /* 必须传新驱动的 bus_handle，不能传 I2C_NUM_0，否则会走旧 I2C 驱动并触发 CONFLICT 崩溃 */
+    ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(bus_handle, &tp_io_config, &tp_io_handle));
+
+    esp_lcd_touch_config_t touch_cfg = {
+        .x_max = LCD_WIDTH,
+        .y_max = LCD_HEIGHT,
+        .rst_gpio_num = LCD_PIN_NUM_TOUCH_RST,
+        .int_gpio_num = LCD_PIN_NUM_TOUCH_INT,
+        .levels = { 
+            .reset = 0, 
+            .interrupt = 0 
+        },
+        .flags = { 
+            .swap_xy = 0, 
+            .mirror_x = 0, 
+            .mirror_y = 0
+        },
+    };
+    ESP_ERROR_CHECK(esp_lcd_touch_new_i2c_ft5x06(tp_io_handle, &touch_cfg, ret_touch));
 }
 
 void bsp_lcd_set_rotation(lv_display_rotation_t rotation)
