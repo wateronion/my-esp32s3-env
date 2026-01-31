@@ -10,13 +10,14 @@
 #include "esp_lcd_panel_vendor.h"
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_touch_ft5x06.h"
+#include <stdint.h>
 
 
 #define TAG "BSP_LCD"
 #define TOUCH_MAX_POINTS  1
 
 static esp_lcd_panel_handle_t panel_handle = NULL;
-// static esp_lcd_touch_handle_t touch_handle = NULL;
+static i2c_master_bus_handle_t bus_handle = NULL; // I2C 总线句柄
 
 void bsp_lcd_display_init(void)
 {
@@ -110,10 +111,13 @@ void bsp_lcd_draw_image(int x, int y, int width, int height, const uint16_t *ima
     ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(panel_handle, x, y, x + width, y + height, (uint16_t *)image_data));
 }
 
-void bsp_lcd_touch_init(esp_lcd_touch_handle_t *ret_touch)
+void bsp_i2c_init(void)
 {
+    if (bus_handle != NULL) {
+        return;
+    }
+
     ESP_LOGI(TAG, "Initialize I2C bus (new driver)");
-    i2c_master_bus_handle_t bus_handle = NULL;
     i2c_master_bus_config_t bus_cfg = {
         .i2c_port = I2C_NUM_0,
         .sda_io_num = LCD_PIN_NUM_TOUCH_SDA,
@@ -123,10 +127,15 @@ void bsp_lcd_touch_init(esp_lcd_touch_handle_t *ret_touch)
         .flags.enable_internal_pullup = true,
     };
     ESP_ERROR_CHECK(i2c_new_master_bus(&bus_cfg, &bus_handle));
+}
 
+void bsp_lcd_touch_init(esp_lcd_touch_handle_t *ret_touch)
+{
+    bsp_i2c_init();
+    
     esp_lcd_panel_io_handle_t tp_io_handle = NULL;
     esp_lcd_panel_io_i2c_config_t tp_io_config = ESP_LCD_TOUCH_IO_I2C_FT5x06_CONFIG();
-    // tp_io_config.scl_speed_hz = 100000;
+    tp_io_config.scl_speed_hz = 100000;
 
     /* 必须传新驱动的 bus_handle，不能传 I2C_NUM_0，否则会走旧 I2C 驱动并触发 CONFLICT 崩溃 */
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(bus_handle, &tp_io_config, &tp_io_handle));
@@ -147,6 +156,39 @@ void bsp_lcd_touch_init(esp_lcd_touch_handle_t *ret_touch)
         },
     };
     ESP_ERROR_CHECK(esp_lcd_touch_new_i2c_ft5x06(tp_io_handle, &touch_cfg, ret_touch));
+}
+
+void bsp_lcd_touch_test(void)
+{
+    esp_lcd_touch_handle_t touch_handle = NULL;
+    bsp_lcd_touch_init(&touch_handle);
+    
+    // 检查设备ID
+    uint8_t data[4] = {0};
+    esp_lcd_panel_io_handle_t io_handle;
+    // 这里需要获取触摸的io_handle来直接读取寄存器
+    
+    ESP_LOGI(TAG, "Checking touch device ID...");
+    
+    // 等待触摸芯片稳定
+    vTaskDelay(pdMS_TO_TICKS(500));
+    
+    while(1) {
+        uint8_t touch_cnt = 0;
+        uint16_t x = 0, y = 0;
+        
+        // 必须先用read_data更新缓冲区
+        esp_lcd_touch_read_data(touch_handle);
+        
+        // 然后获取坐标
+        if(esp_lcd_touch_get_coordinates(touch_handle, &x, &y, NULL, &touch_cnt, 1)) {
+            if(touch_cnt > 0) {
+                ESP_LOGI(TAG, "Touch! x=%d, y=%d", x, y);
+            }
+        }
+        
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
 }
 
 void bsp_lcd_set_rotation(lv_display_rotation_t rotation)

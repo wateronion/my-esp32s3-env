@@ -33,3 +33,4 @@ void bsp_lcd_set_color(uint16_t color);
 void bsp_lcd_draw_image(int x, int y, int width, int height, const uint16_t *image_data);
 void bsp_lcd_touch_init(esp_lcd_touch_handle_t *ret_touch);
 void bsp_lcd_set_rotation(lv_display_rotation_t rotation);
+void bsp_lcd_touch_test(void);

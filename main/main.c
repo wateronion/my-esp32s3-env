@@ -17,14 +17,12 @@
 void app_main(void)
 {
     esp_log_level_set("*", ESP_LOG_VERBOSE);
-    esp_lcd_touch_handle_t lvgl_touch_handle = NULL;
 
     xTaskCreate(uart1_rx_task, "uart1_rx_task", 4096, NULL, 10, NULL);
     // xTaskCreate(timer_task, "timer_task", 4096, NULL, 10, NULL);
     // xTaskCreate(pwm_task, "pwm_task", 4096, NULL, 10, NULL);
     xTaskCreate(bsp_rmt_task, "bsp_rmt_task", 8192, NULL, 10, NULL);
     bsp_lcd_display_init();
-    bsp_lcd_touch_init(&lvgl_touch_handle);
     while (1)
     {
         // bsp_lcd_set_color(0xF800); // 红色
@@ -33,6 +31,7 @@ void app_main(void)
         // bsp_lcd_set_color(0x07E0); // 绿色
         // bsp_lcd_draw_image(0,0,240,320,(uint16_t *)gImage_YUNO);
         // test_display();
+        bsp_lcd_touch_test();
         vTaskDelay(1000 / portTICK_PERIOD_MS);
 
         // bsp_lcd_set_color(0x001F); // 蓝色
