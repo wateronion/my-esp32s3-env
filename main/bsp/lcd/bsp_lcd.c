@@ -11,12 +11,13 @@
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_touch_ft5x06.h"
 #include <stdint.h>
+#include "esp_lvgl_port.h"
 
 
 #define TAG "BSP_LCD"
 #define TOUCH_MAX_POINTS  1
 
-static esp_lcd_panel_handle_t panel_handle = NULL;
+static esp_lcd_panel_handle_t panel_handle = NULL; // LCD 面板句柄
 static i2c_master_bus_handle_t bus_handle = NULL; // I2C 总线句柄
 
 void bsp_lcd_display_init(void)
@@ -36,7 +37,7 @@ void bsp_lcd_display_init(void)
     // 第 3 个参数表示使用的 DMA 通道号，默认设置为 `SPI_DMA_CH_AUTO` 即可
 
     ESP_LOGI(TAG, "Install panel IO");
-    esp_lcd_panel_io_handle_t io_handle = NULL;
+    esp_lcd_panel_io_handle_t io_handle = NULL; // LCD 面板 IO 句柄
     esp_lcd_panel_io_spi_config_t io_config = {
         .dc_gpio_num = LCD_PIN_NUM_DC, // 连接 LCD DC（RS） 信号的 IO 编号，可以设为 `-1` 表示不使用
         .cs_gpio_num = LCD_PIN_NUM_CS, // 连接 LCD CS 信号的 IO 编号，可以设为 `-1` 表示不使用
@@ -89,6 +90,42 @@ void bsp_lcd_display_init(void)
     ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, true)); // 设置 LCD 的镜像
 
     bsp_lcd_set_color(0x0000); // 清屏
+
+    const lvgl_port_cfg_t lvgl_cfg = ESP_LVGL_PORT_INIT_CONFIG();
+    esp_err_t err = lvgl_port_init(&lvgl_cfg);
+
+    static lv_disp_t * disp_handle;
+
+    /* Add LCD screen */
+    const lvgl_port_display_cfg_t disp_cfg = {
+        .io_handle = io_handle,
+        .panel_handle = panel_handle,
+        .buffer_size = LCD_WIDTH*LCD_HEIGHT*2,
+        .double_buffer = true,
+        .hres = LCD_WIDTH,
+        .vres = LCD_HEIGHT,
+        .monochrome = false,
+        // .mipi_dsi = false,
+        .color_format = LV_COLOR_FORMAT_RGB565,
+        .rounder_cb = NULL,
+        .rotation = {
+            .swap_xy = false,
+            .mirror_x = false,
+            .mirror_y = false,
+        },
+        .flags = {
+            .buff_dma = true,
+            .swap_bytes = false,
+        }
+    };
+    disp_handle = lvgl_port_add_disp(&disp_cfg);
+
+    /* ... the rest of the initialization ... */
+
+    /* If deinitializing LVGL port, remember to delete all displays: */
+    lvgl_port_remove_disp(disp_handle);
+
+
 }
 
 void bsp_lcd_set_color(uint16_t color)

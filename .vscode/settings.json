@@ -22,5 +22,6 @@
     "esp_lcd_panel_ssd1306.h": "c",
     "i2c_master.h": "c",
     "bsp_timer.h": "c"
-  }
+  },
+  "idf.currentSetup": "D:/Espressif/frameworks/esp-idf-v5.5.1/"
 }
