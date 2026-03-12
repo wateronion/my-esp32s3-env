@@ -17,3 +17,4 @@ dependencies:
   lvgl/lvgl: ^9.4.0
   espressif/esp_lcd_touch_ft5x06: ^1.1.0
   espressif/esp_lvgl_port: ^2.7.2
+  espressif/esp_lvgl_adapter: ^0.4.0
