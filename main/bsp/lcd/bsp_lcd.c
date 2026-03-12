@@ -11,7 +11,7 @@
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_touch_ft5x06.h"
 #include <stdint.h>
-#include "esp_lvgl_port.h"
+#include "esp_lv_adapter.h"
 
 
 #define TAG "BSP_LCD"
@@ -29,7 +29,8 @@ void bsp_lcd_display_init(void)
         .miso_io_num = -1,                                            // 连接 LCD MISO（SDI） 信号的 IO 编号，如果不需要从 LCD 读取数据，可以设为 `-1`
         .quadwp_io_num = -1,                                          // 必须设置且为 `-1`
         .quadhd_io_num = -1,                                          // 必须设置且为 `-1`
-        .max_transfer_sz = LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t), // 表示 SPI 单次传输允许的最大字节数上限，通常设为全屏大小即可
+        // .max_transfer_sz = LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t), // 表示 SPI 单次传输允许的最大字节数上限，通常设为全屏大小即可
+        .max_transfer_sz = 4096, // 表示 SPI 单次传输允许的最大字节数上限，通常设为全屏大小即可
     };
 
     ESP_ERROR_CHECK(spi_bus_initialize(LCD_HOST, &buscfg, SPI_DMA_CH_AUTO));
@@ -91,41 +92,28 @@ void bsp_lcd_display_init(void)
 
     bsp_lcd_set_color(0x0000); // 清屏
 
-    const lvgl_port_cfg_t lvgl_cfg = ESP_LVGL_PORT_INIT_CONFIG();
-    esp_err_t err = lvgl_port_init(&lvgl_cfg);
+    esp_lv_adapter_config_t cfg = ESP_LV_ADAPTER_DEFAULT_CONFIG();
+    ESP_ERROR_CHECK(esp_lv_adapter_init(&cfg));
 
-    static lv_disp_t * disp_handle;
+    esp_lv_adapter_display_config_t disp_cfg = ESP_LV_ADAPTER_DISPLAY_SPI_WITH_PSRAM_DEFAULT_CONFIG(
+        panel_handle,           // LCD 面板句柄
+        io_handle,        // LCD 面板 IO 句柄（某些接口可为 NULL）
+        240,             // 水平分辨率
+        320,             // 垂直分辨率
+        ESP_LV_ADAPTER_ROTATE_0 // 旋转角度
+    );
+    lv_display_t *disp = esp_lv_adapter_register_display(&disp_cfg);
+    assert(disp != NULL);
 
-    /* Add LCD screen */
-    const lvgl_port_display_cfg_t disp_cfg = {
-        .io_handle = io_handle,
-        .panel_handle = panel_handle,
-        .buffer_size = LCD_WIDTH*LCD_HEIGHT*2,
-        .double_buffer = true,
-        .hres = LCD_WIDTH,
-        .vres = LCD_HEIGHT,
-        .monochrome = false,
-        // .mipi_dsi = false,
-        .color_format = LV_COLOR_FORMAT_RGB565,
-        .rounder_cb = NULL,
-        .rotation = {
-            .swap_xy = false,
-            .mirror_x = false,
-            .mirror_y = false,
-        },
-        .flags = {
-            .buff_dma = true,
-            .swap_bytes = false,
-        }
-    };
-    disp_handle = lvgl_port_add_disp(&disp_cfg);
+    ESP_ERROR_CHECK(esp_lv_adapter_start());
 
-    /* ... the rest of the initialization ... */
-
-    /* If deinitializing LVGL port, remember to delete all displays: */
-    lvgl_port_remove_disp(disp_handle);
-
-
+    // 步骤 5: 使用 LVGL API 绘制界面（需要先加锁）
+    if (esp_lv_adapter_lock(-1) == ESP_OK) {
+        lv_obj_t *label = lv_label_create(lv_scr_act());
+        lv_label_set_text(label, "Hello LVGL!");
+        lv_obj_center(label);
+        esp_lv_adapter_unlock();
+    }
 }
 
 void bsp_lcd_set_color(uint16_t color)

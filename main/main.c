@@ -22,9 +22,9 @@ void app_main(void)
     // xTaskCreate(timer_task, "timer_task", 4096, NULL, 10, NULL);
     // xTaskCreate(pwm_task, "pwm_task", 4096, NULL, 10, NULL);
     xTaskCreate(bsp_rmt_task, "bsp_rmt_task", 8192, NULL, 10, NULL);
-    bsp_lcd_display_init();
     while (1)
     {
+        bsp_lcd_display_init();
         // bsp_lcd_set_color(0xF800); // 红色
         // vTaskDelay(1000 / portTICK_PERIOD_MS);
 

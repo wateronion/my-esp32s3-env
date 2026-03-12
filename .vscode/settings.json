@@ -15,7 +15,7 @@
     "--query-driver=D:\\Espressif\\tools\\xtensa-esp-elf\\esp-14.2.0_20241119\\xtensa-esp-elf\\bin\\xtensa-esp32s3-elf-gcc.exe",
     "--compile-commands-dir=d:\\code\\env\\build"
   ],
-  "idf.portWin": "COM7",
+  "idf.portWin": "COM9",
   "idf.flashType": "UART",
   "files.associations": {
     "bsp_lcd.h": "c",
