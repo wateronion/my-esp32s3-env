@@ -59,8 +59,8 @@ void bsp_lcd_display_init(void)
         .reset_gpio_num = LCD_PIN_NUM_RST,      // 连接 LCD RST 信号的 IO 编号，可以设为 `-1` 表示不使用
         // .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR,
         // .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_RGB,
-        // .data_endian = LCD_RGB_ENDIAN_RGB,
-        .data_endian = LCD_RGB_ENDIAN_BGR,
+        .data_endian = LCD_RGB_ENDIAN_RGB,
+        // .data_endian = LCD_RGB_ENDIAN_BGR,
         .bits_per_pixel = 16, // LCD 每个像素的数据位宽
     };
     ESP_ERROR_CHECK(esp_lcd_new_panel_st7789(io_handle, &panel_config, &panel_handle));
@@ -111,6 +111,7 @@ void bsp_lcd_display_init(void)
     if (esp_lv_adapter_lock(-1) == ESP_OK) {
         lv_obj_t *label = lv_label_create(lv_scr_act());
         lv_label_set_text(label, "Hello LVGL!");
+        // lv_obj_set_style_text_color(label, lv_color_white(), 0);
         lv_obj_center(label);
         esp_lv_adapter_unlock();
     }
