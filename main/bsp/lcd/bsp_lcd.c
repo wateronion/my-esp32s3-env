@@ -105,16 +105,54 @@ void bsp_lcd_display_init(void)
     lv_display_t *disp = esp_lv_adapter_register_display(&disp_cfg);
     assert(disp != NULL);
 
+    // 初始化触摸屏（FT5x06）相关的 I2C 总线和设备
+    if (bus_handle != NULL) {
+        return;
+    }
+
+    ESP_LOGI(TAG, "Initialize I2C bus (new driver)");
+    i2c_master_bus_config_t bus_cfg = {
+        .i2c_port = I2C_NUM_0,
+        .sda_io_num = LCD_PIN_NUM_TOUCH_SDA,
+        .scl_io_num = LCD_PIN_NUM_TOUCH_SCL,
+        .clk_source = I2C_CLK_SRC_DEFAULT,
+        .glitch_ignore_cnt = 7,
+        .flags.enable_internal_pullup = true,
+    };
+    ESP_ERROR_CHECK(i2c_new_master_bus(&bus_cfg, &bus_handle));
+
+    esp_lcd_touch_handle_t touch_handle = NULL;
+    esp_lcd_panel_io_handle_t tp_io_handle = NULL;
+    esp_lcd_panel_io_i2c_config_t tp_io_config = ESP_LCD_TOUCH_IO_I2C_FT5x06_CONFIG();
+    tp_io_config.scl_speed_hz = 100000;
+
+    /* 必须传新驱动的 bus_handle，不能传 I2C_NUM_0，否则会走旧 I2C 驱动并触发 CONFLICT 崩溃 */
+    ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(bus_handle, &tp_io_config, &tp_io_handle));
+
+    esp_lcd_touch_config_t touch_cfg = {
+        .x_max = LCD_WIDTH,
+        .y_max = LCD_HEIGHT,
+        .rst_gpio_num = LCD_PIN_NUM_TOUCH_RST,
+        .int_gpio_num = LCD_PIN_NUM_TOUCH_INT,
+        .levels = { 
+            .reset = 0, 
+            .interrupt = 0 
+        },
+        .flags = { 
+            .swap_xy = 0, 
+            .mirror_x = 1, 
+            .mirror_y = 1
+        },
+    };
+    ESP_ERROR_CHECK(esp_lcd_touch_new_i2c_ft5x06(tp_io_handle, &touch_cfg, &touch_handle));
+    esp_lv_adapter_touch_config_t touch_adapter_cfg = ESP_LV_ADAPTER_TOUCH_DEFAULT_CONFIG(disp, touch_handle);
+    lv_indev_t *touch = esp_lv_adapter_register_touch(&touch_adapter_cfg);
+    assert(touch != NULL);
+
     ESP_ERROR_CHECK(esp_lv_adapter_start());
 
     // 步骤 5: 使用 LVGL API 绘制界面（需要先加锁）
-    if (esp_lv_adapter_lock(-1) == ESP_OK) {
-        lv_obj_t *label = lv_label_create(lv_scr_act());
-        lv_label_set_text(label, "Hello LVGL!");
-        // lv_obj_set_style_text_color(label, lv_color_white(), 0);
-        lv_obj_center(label);
-        esp_lv_adapter_unlock();
-    }
+    
 }
 
 void bsp_lcd_set_color(uint16_t color)

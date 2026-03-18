@@ -6,6 +6,7 @@ SRCS            "main.c"
                 "bsp/pwm/bsp_pwm.c"
                 "bsp/rmt/bsp_rmt.c"
                 "bsp/lcd/bsp_lcd.c"
+                "bsp/user_lvgl/ulvgl.c"
 PRIV_REQUIRES   spi_flash
                 driver
                 esp_driver_rmt
@@ -18,4 +19,5 @@ INCLUDE_DIRS    "."
                 "bsp/rmt"
                 "bsp/lcd"
                 "display"
+                "bsp/user_lvgl"
 )
