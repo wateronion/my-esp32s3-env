@@ -30,7 +30,7 @@ void bsp_lcd_display_init(void)
         .quadwp_io_num = -1,                                          // 必须设置且为 `-1`
         .quadhd_io_num = -1,                                          // 必须设置且为 `-1`
         // .max_transfer_sz = LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t), // 表示 SPI 单次传输允许的最大字节数上限，通常设为全屏大小即可
-        .max_transfer_sz = 4096, // 表示 SPI 单次传输允许的最大字节数上限，通常设为全屏大小即可
+        .max_transfer_sz = 1024, // 表示 SPI 单次传输允许的最大字节数上限，通常设为全屏大小即可
     };
 
     ESP_ERROR_CHECK(spi_bus_initialize(LCD_HOST, &buscfg, SPI_DMA_CH_AUTO));
@@ -155,19 +155,42 @@ void bsp_lcd_display_init(void)
     
 }
 
+// void bsp_lcd_set_color(uint16_t color)
+// {
+//     // 预生成全屏颜色数据
+//     static uint16_t *full_screen_buf = NULL;
+//     if (full_screen_buf == NULL) {
+//         full_screen_buf = heap_caps_malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t), MALLOC_CAP_DMA);
+//         ESP_ERROR_CHECK(full_screen_buf != NULL ? ESP_OK : ESP_ERR_NO_MEM);
+//     }
+//     for (int i = 0; i < LCD_WIDTH * LCD_HEIGHT; i++) {
+//         full_screen_buf[i] = color;
+//     }
+
+//     ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, LCD_WIDTH, LCD_HEIGHT, full_screen_buf));
+// }
+
+
 void bsp_lcd_set_color(uint16_t color)
 {
-    // 预生成全屏颜色数据
-    static uint16_t *full_screen_buf = NULL;
-    if (full_screen_buf == NULL) {
-        full_screen_buf = heap_caps_malloc(LCD_WIDTH * LCD_HEIGHT * sizeof(uint16_t), MALLOC_CAP_DMA);
-        ESP_ERROR_CHECK(full_screen_buf != NULL ? ESP_OK : ESP_ERR_NO_MEM);
+    const int line_width = LCD_WIDTH;
+    static uint16_t *line_buf = NULL;
+    
+    if (line_buf == NULL) {
+        line_buf = heap_caps_malloc(line_width * sizeof(uint16_t), MALLOC_CAP_DMA);
+        if (line_buf == NULL) {
+            ESP_LOGE(TAG, "Failed to allocate DMA buffer");
+            return;
+        }
     }
-    for (int i = 0; i < LCD_WIDTH * LCD_HEIGHT; i++) {
-        full_screen_buf[i] = color;
+    
+    for (int i = 0; i < line_width; i++) {
+        line_buf[i] = color;
     }
 
-    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, LCD_WIDTH, LCD_HEIGHT, full_screen_buf));
+    for (int y = 0; y < LCD_HEIGHT; y++) {
+        ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(panel_handle, 0, y, LCD_WIDTH, y + 1, line_buf));
+    }
 }
 
 void bsp_lcd_draw_image(int x, int y, int width, int height, const uint16_t *image_data)

@@ -15,6 +15,7 @@
 #include "display/pic.h"
 #include "esp_lv_adapter.h"
 #include "bsp/user_lvgl/ulvgl.h"
+#include "lv_demos.h"
 
 void app_main(void)
 {
@@ -28,16 +29,22 @@ void app_main(void)
 
     if (esp_lv_adapter_lock(-1) == ESP_OK)
     {
-        lv_obj_t * parent = lv_obj_create(lv_screen_active());  /* 在当前屏幕上创建一个父级 Widget */
-        lv_obj_set_pos(parent, 30, 100);
-        lv_obj_set_size(parent, 100, 100);                       /* 设置父级的尺寸 */
-        lv_obj_set_style_bg_color(parent, lv_color_hex(0x003a57), LV_PART_MAIN);
+        // lv_obj_t * obj1;
+        // obj1 = lv_obj_create(lv_screen_active());
+        // lv_obj_set_size(obj1, 100, 50);
+        // lv_obj_align(obj1, LV_ALIGN_CENTER, -60, -30);
 
-        lv_obj_t * obj1 = lv_obj_create(parent);                /* 在先前创建的父级 Widget 上创建一个 Widget */
-        lv_obj_set_pos(obj1, 10, 10);                        /* 设置新 Widget 的位置 */
-        lv_obj_set_size(obj1, 50, 50);
-        lv_obj_set_style_bg_color(obj1, lv_color_hex(0xFF0000), LV_PART_MAIN);
+        // static lv_style_t style_shadow;
+        // lv_style_init(&style_shadow);
+        // lv_style_set_shadow_width(&style_shadow, 10);
+        // lv_style_set_shadow_spread(&style_shadow, 5);
+        // lv_style_set_shadow_color(&style_shadow, lv_palette_main(LV_PALETTE_BLUE));
 
+        // lv_obj_t * obj2;
+        // obj2 = lv_obj_create(lv_screen_active());
+        // lv_obj_add_style(obj2, &style_shadow, 0);
+        // lv_obj_align(obj2, LV_ALIGN_CENTER, 60, 30);
+        lv_demo_benchmark();
         esp_lv_adapter_unlock();
     }
 
