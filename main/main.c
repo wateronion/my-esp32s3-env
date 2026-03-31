@@ -28,8 +28,16 @@ void app_main(void)
 
     if (esp_lv_adapter_lock(-1) == ESP_OK)
     {
-        lv_example_get_started_2();
-        lv_example_get_started_4();
+        lv_obj_t * parent = lv_obj_create(lv_screen_active());  /* 在当前屏幕上创建一个父级 Widget */
+        lv_obj_set_pos(parent, 30, 100);
+        lv_obj_set_size(parent, 100, 100);                       /* 设置父级的尺寸 */
+        lv_obj_set_style_bg_color(parent, lv_color_hex(0x003a57), LV_PART_MAIN);
+
+        lv_obj_t * obj1 = lv_obj_create(parent);                /* 在先前创建的父级 Widget 上创建一个 Widget */
+        lv_obj_set_pos(obj1, 10, 10);                        /* 设置新 Widget 的位置 */
+        lv_obj_set_size(obj1, 50, 50);
+        lv_obj_set_style_bg_color(obj1, lv_color_hex(0xFF0000), LV_PART_MAIN);
+
         esp_lv_adapter_unlock();
     }
 
