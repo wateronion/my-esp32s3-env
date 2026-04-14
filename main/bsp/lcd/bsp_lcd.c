@@ -59,7 +59,8 @@ void bsp_lcd_display_init(void)
         .reset_gpio_num = LCD_PIN_NUM_RST,      // 连接 LCD RST 信号的 IO 编号，可以设为 `-1` 表示不使用
         // .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR,
         // .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_RGB,
-        .data_endian = LCD_RGB_ENDIAN_RGB,
+        .data_endian = LCD_RGB_DATA_ENDIAN_BIG,
+        // .data_endian = LCD_RGB_ENDIAN_RGB, // IDF 5.5
         // .data_endian = LCD_RGB_ENDIAN_BGR,
         .bits_per_pixel = 16, // LCD 每个像素的数据位宽
     };
@@ -245,38 +246,38 @@ void bsp_lcd_touch_init(esp_lcd_touch_handle_t *ret_touch)
     ESP_ERROR_CHECK(esp_lcd_touch_new_i2c_ft5x06(tp_io_handle, &touch_cfg, ret_touch));
 }
 
-void bsp_lcd_touch_test(void)
-{
-    esp_lcd_touch_handle_t touch_handle = NULL;
-    bsp_lcd_touch_init(&touch_handle);
+// void bsp_lcd_touch_test(void)
+// {
+//     esp_lcd_touch_handle_t touch_handle = NULL;
+//     bsp_lcd_touch_init(&touch_handle);
     
-    // 检查设备ID
-    uint8_t data[4] = {0};
-    esp_lcd_panel_io_handle_t io_handle;
-    // 这里需要获取触摸的io_handle来直接读取寄存器
+//     // 检查设备ID
+//     // uint8_t data[4] = {0};
+//     // esp_lcd_panel_io_handle_t io_handle;
+//     // 这里需要获取触摸的io_handle来直接读取寄存器
     
-    ESP_LOGI(TAG, "Checking touch device ID...");
+//     ESP_LOGI(TAG, "Checking touch device ID...");
     
-    // 等待触摸芯片稳定
-    vTaskDelay(pdMS_TO_TICKS(500));
+//     // 等待触摸芯片稳定
+//     vTaskDelay(pdMS_TO_TICKS(500));
     
-    while(1) {
-        uint8_t touch_cnt = 0;
-        uint16_t x = 0, y = 0;
+//     while(1) {
+//         uint8_t touch_cnt = 0;
+//         uint16_t x = 0, y = 0;
         
-        // 必须先用read_data更新缓冲区
-        esp_lcd_touch_read_data(touch_handle);
+//         // 必须先用read_data更新缓冲区
+//         esp_lcd_touch_read_data(touch_handle);
         
-        // 然后获取坐标
-        if(esp_lcd_touch_get_coordinates(touch_handle, &x, &y, NULL, &touch_cnt, 1)) {
-            if(touch_cnt > 0) {
-                ESP_LOGI(TAG, "Touch! x=%d, y=%d", x, y);
-            }
-        }
+//         // 然后获取坐标
+//         if(esp_lcd_touch_get_coordinates(touch_handle, &x, &y, NULL, &touch_cnt, 1)) {
+//             if(touch_cnt > 0) {
+//                 ESP_LOGI(TAG, "Touch! x=%d, y=%d", x, y);
+//             }
+//         }
         
-        vTaskDelay(pdMS_TO_TICKS(100));
-    }
-}
+//         vTaskDelay(pdMS_TO_TICKS(100));
+//     }
+// }
 
 void bsp_lcd_set_rotation(lv_display_rotation_t rotation)
 {

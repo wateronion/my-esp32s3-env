@@ -7,9 +7,12 @@
 #define TAG "BSP_UART"
 
 uint8_t rx_buf[RX_BUF_SIZE];
+const int uart_buffer_size = (1024 * 2);
+QueueHandle_t uart_queue;
 
 void bsp_uart_init(uart_port_t uart_num, uint32_t baudrate, uint8_t rx_pin, uint8_t tx_pin)
 {
+    ESP_ERROR_CHECK(uart_driver_install(uart_num, RX_BUF_SIZE, TX_BUF_SIZE, 10, &uart_queue, 0));
     uart_config_t uart_config = {
         .baud_rate = baudrate,
         .data_bits = UART_DATA_8_BITS,
@@ -17,9 +20,8 @@ void bsp_uart_init(uart_port_t uart_num, uint32_t baudrate, uint8_t rx_pin, uint
         .stop_bits = UART_STOP_BITS_1,
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
     };
-    uart_param_config(uart_num, &uart_config);
-    uart_set_pin(uart_num, tx_pin, rx_pin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    uart_driver_install(uart_num, RX_BUF_SIZE, TX_BUF_SIZE, 0, NULL, 0);
+    ESP_ERROR_CHECK(uart_param_config(uart_num, &uart_config));
+    ESP_ERROR_CHECK(uart_set_pin(uart_num, tx_pin, rx_pin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
 }
 
 void uart1_rx_task(void *pvParameters)

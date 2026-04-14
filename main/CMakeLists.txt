@@ -10,6 +10,7 @@ SRCS            "main.c"
 PRIV_REQUIRES   spi_flash
                 driver
                 esp_driver_rmt
+                esp_driver_uart
                 esp_lcd
 INCLUDE_DIRS    "."
                 "bsp/led"
