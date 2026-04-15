@@ -1040,6 +1040,21 @@ CONFIG_GDMA_OBJ_DRAM_SAFE=y
 # end of ESP-Driver:GPIO Configurations
 
 #
+# ESP-Driver:GPTimer Configurations
+#
+# default:
+CONFIG_GPTIMER_ISR_HANDLER_IN_IRAM=y
+# default:
+# CONFIG_GPTIMER_CTRL_FUNC_IN_IRAM is not set
+# default:
+# CONFIG_GPTIMER_ISR_CACHE_SAFE is not set
+# default:
+CONFIG_GPTIMER_OBJ_CACHE_SAFE=y
+# default:
+# CONFIG_GPTIMER_ENABLE_DEBUG_LOG is not set
+# end of ESP-Driver:GPTimer Configurations
+
+#
 # ESP-Driver:I2C Configurations
 #
 # CONFIG_I2C_ISR_IRAM_SAFE is not set
@@ -1055,6 +1070,13 @@ CONFIG_I2C_MASTER_ISR_HANDLER_IN_IRAM=y
 # CONFIG_I2S_CTRL_FUNC_IN_IRAM is not set
 # CONFIG_I2S_ENABLE_DEBUG_LOG is not set
 # end of ESP-Driver:I2S Configurations
+
+#
+# ESP-Driver:LEDC Configurations
+#
+# default:
+# CONFIG_LEDC_CTRL_FUNC_IN_IRAM is not set
+# end of ESP-Driver:LEDC Configurations
 
 #
 # ESP-Driver:RMT Configurations
@@ -2558,6 +2580,7 @@ CONFIG_STACK_CHECK_NONE=y
 # CONFIG_STACK_CHECK_STRONG is not set
 # CONFIG_STACK_CHECK_ALL is not set
 # CONFIG_WARN_WRITE_STRINGS is not set
+# CONFIG_GPTIMER_ISR_IRAM_SAFE is not set
 CONFIG_ESP32S3_DEEP_SLEEP_WAKEUP_DELAY=2000
 CONFIG_ESP_SLEEP_DEEP_SLEEP_WAKEUP_DELAY=2000
 CONFIG_ESP32S3_RTC_CLK_SRC_INT_RC=y

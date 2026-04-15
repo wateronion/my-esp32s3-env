@@ -12,6 +12,8 @@ PRIV_REQUIRES   spi_flash
                 esp_driver_rmt
                 esp_driver_uart
                 esp_lcd
+                esp_driver_gptimer
+                esp_driver_ledc
 INCLUDE_DIRS    "."
                 "bsp/led"
                 "bsp/uart"

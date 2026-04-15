@@ -21,10 +21,10 @@ void app_main(void)
 {
     esp_log_level_set("*", ESP_LOG_VERBOSE);
 
-    xTaskCreate(uart1_rx_task, "uart1_rx_task", 4096, NULL, 10, NULL);
-    // xTaskCreate(timer_task, "timer_task", 4096, NULL, 10, NULL);
+    // xTaskCreate(uart1_rx_task, "uart1_rx_task", 4096, NULL, 10, NULL);
+    xTaskCreate(timer_task, "timer_task", 4096, NULL, 10, NULL);
     // xTaskCreate(pwm_task, "pwm_task", 4096, NULL, 10, NULL);
-    // xTaskCreate(bsp_rmt_task, "bsp_rmt_task", 8192, NULL, 10, NULL);
+    xTaskCreate(bsp_rmt_task, "bsp_rmt_task", 8192, NULL, 10, NULL);
     bsp_lcd_display_init();
 
     if (esp_lv_adapter_lock(-1) == ESP_OK)

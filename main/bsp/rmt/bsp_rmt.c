@@ -110,11 +110,11 @@ void led_strip_hsv2rgb(uint32_t h, uint32_t s, uint32_t v, uint32_t *r, uint32_t
 
 void bsp_rmt_task(void *arg)
 {
-    // uint32_t red = 0;
-    // uint32_t green = 0;
-    // uint32_t blue = 0;
-    // uint16_t hue = 0;
-    // uint16_t start_rgb = 0;
+    uint32_t red = 0;
+    uint32_t green = 0;
+    uint32_t blue = 0;
+    uint16_t hue = 0;
+    uint16_t start_rgb = 0;
 
     bsp_rmt_init();
 
@@ -134,6 +134,7 @@ void bsp_rmt_task(void *arg)
         //     ESP_ERROR_CHECK(rmt_tx_wait_all_done(tx_channel, portMAX_DELAY));
         //     vTaskDelay(pdMS_TO_TICKS(CHASE_SPEED_MS));
 
+        //     // Clear RGB pixels
         //     memset(led_strip_pixels, 0, sizeof(led_strip_pixels));
         //     bsp_rmt_send_data(led_strip_pixels, sizeof(led_strip_pixels));
         //     ESP_ERROR_CHECK(rmt_tx_wait_all_done(tx_channel, portMAX_DELAY));
