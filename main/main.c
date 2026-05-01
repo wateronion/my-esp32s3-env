@@ -29,7 +29,9 @@ void app_main(void)
 
     if (esp_lv_adapter_lock(-1) == ESP_OK)
     {
-        lv_example_obj_2();
+        // lv_example_obj_2();
+        // lv_demo_widgets();
+        lv_example_animimg_1();
         esp_lv_adapter_unlock();
     }
 
