@@ -7,6 +7,8 @@ SRCS            "main.c"
                 "bsp/rmt/bsp_rmt.c"
                 "bsp/lcd/bsp_lcd.c"
                 "bsp/user_lvgl/ulvgl.c"
+                "bsp/user_lvgl/ulvgl_wifi.c"
+                "bsp/wifi/bsp_wifi.c"
 PRIV_REQUIRES   spi_flash
                 driver
                 esp_driver_rmt
@@ -14,6 +16,11 @@ PRIV_REQUIRES   spi_flash
                 esp_lcd
                 esp_driver_gptimer
                 esp_driver_ledc
+                esp_wifi
+                esp_netif
+                esp_event
+                nvs_flash
+
 INCLUDE_DIRS    "."
                 "bsp/led"
                 "bsp/uart"
@@ -23,4 +30,5 @@ INCLUDE_DIRS    "."
                 "bsp/lcd"
                 "display"
                 "bsp/user_lvgl"
+                "bsp/wifi"
 )
