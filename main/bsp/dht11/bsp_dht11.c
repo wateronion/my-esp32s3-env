@@ -16,6 +16,10 @@ static SemaphoreHandle_t dht11_rx_sem = NULL;
 static rmt_symbol_word_t dht11_rx_symbols[DHT11_RMT_SYMBOLS];
 static size_t dht11_rx_num_symbols = 0;
 
+/* Cached latest readings for UI access */
+static int    s_cached_humidity = 0;
+static float  s_cached_temperature = 0;
+
 /* RMT RX done callback (ISR context) */
 static bool IRAM_ATTR dht11_rmt_rx_done_cb(rmt_channel_handle_t channel,
     const rmt_rx_done_event_data_t *edata, void *user_data)
@@ -160,6 +164,16 @@ fail:
     return ESP_FAIL;
 }
 
+esp_err_t bsp_dht11_get_cached(int *humidity, float *temperature)
+{
+    if (humidity == NULL || temperature == NULL)
+        return ESP_ERR_INVALID_ARG;
+
+    *humidity    = s_cached_humidity;
+    *temperature = s_cached_temperature;
+    return (s_cached_humidity == 0 && s_cached_temperature == 0.0f) ? ESP_FAIL : ESP_OK;
+}
+
 void bsp_dht11_task(void *arg)
 {
     int humidity = 0;
@@ -179,6 +193,8 @@ void bsp_dht11_task(void *arg)
         if (ret == ESP_OK) {
             ESP_LOGI(TAG, "Temp: %.1fC, Humidity: %d%%",
                      temperature, humidity);
+            s_cached_humidity    = humidity;
+            s_cached_temperature = temperature;
             fail_count = 0;
         } else {
             fail_count++;

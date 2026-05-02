@@ -17,6 +17,7 @@ static lv_obj_t *s_popup = NULL;
 static char s_selected_ssid[33] = {0};
 static bsp_wifi_ap_info_t s_ap_list[ULVGL_WIFI_LIST_MAX];
 static uint16_t s_ap_count = 0;
+static void (*s_back_cb)(void) = NULL;
 
 static void wifi_scan_cb(bsp_wifi_ap_info_t *ap_list, uint16_t ap_count)
 {
@@ -254,11 +255,33 @@ static void conn_status_timer_cb(lv_timer_t *timer)
     }
 }
 
-void ulvgl_wifi_create(lv_obj_t *parent)
+static void back_btn_cb(lv_event_t *e)
+{
+    if (s_back_cb) s_back_cb();
+}
+
+void ulvgl_wifi_create(lv_obj_t *parent, void (*back_cb)(void))
 {
     if (parent == NULL) parent = lv_screen_active();
 
+    s_back_cb = back_cb;
+
     lv_obj_set_style_bg_color(parent, lv_color_hex(0xFFFFFF), 0);
+
+    // back button (top-left)
+    if (s_back_cb)
+    {
+        lv_obj_t *back_btn = lv_button_create(parent);
+        lv_obj_set_size(back_btn, 50, 28);
+        lv_obj_align(back_btn, LV_ALIGN_TOP_LEFT, 3, 3);
+        lv_obj_add_event_cb(back_btn, back_btn_cb, LV_EVENT_CLICKED, NULL);
+        lv_obj_set_style_bg_color(back_btn, lv_color_hex(0xE0E0E0), 0);
+        lv_obj_set_style_radius(back_btn, 4, 0);
+        lv_obj_t *back_lbl = lv_label_create(back_btn);
+        lv_label_set_text(back_lbl, LV_SYMBOL_LEFT " Back");
+        lv_obj_set_style_text_color(back_lbl, lv_color_hex(0x000000), 0);
+        lv_obj_center(back_lbl);
+    }
 
     // title
     lv_obj_t *title = lv_label_create(parent);

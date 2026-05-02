@@ -11,13 +11,15 @@
 #include "bsp/pwm/bsp_pwm.h"
 #include "bsp/rmt/bsp_rmt.h"
 #include "bsp/lcd/bsp_lcd.h"
-#include "display/logo.h"
-#include "display/pic.h"
+// #include "display/logo.h"
+// #include "display/pic.h"
 #include "esp_lv_adapter.h"
 #include "bsp/user_lvgl/ulvgl.h"
 #include "bsp/user_lvgl/ulvgl_wifi.h"
+#include "bsp/user_lvgl/ulvgl_home.h"
 #include "bsp/wifi/bsp_wifi.h"
 #include "bsp/dht11/bsp_dht11.h"
+#include "bsp/controls/bsp_controls.h"
 #include "lv_demos.h"
 #include "nvs_flash.h"
 
@@ -41,10 +43,13 @@ void app_main(void)
     bsp_dht11_init();
     xTaskCreate(bsp_dht11_task, "dht11_task", DHT11_TASK_STACK, NULL, DHT11_TASK_PRIO, NULL);
     bsp_wifi_init();
+    bsp_controls_init();
 
     if (esp_lv_adapter_lock(-1) == ESP_OK)
     {
-        ulvgl_wifi_create(NULL);
+        lv_obj_t *home_scr = lv_obj_create(NULL);
+        ulvgl_home_create(home_scr);
+        lv_screen_load(home_scr);
         esp_lv_adapter_unlock();
     }
 
