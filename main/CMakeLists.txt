@@ -9,6 +9,7 @@ SRCS            "main.c"
                 "bsp/user_lvgl/ulvgl.c"
                 "bsp/user_lvgl/ulvgl_wifi.c"
                 "bsp/wifi/bsp_wifi.c"
+                "bsp/dht11/bsp_dht11.c"
 PRIV_REQUIRES   spi_flash
                 driver
                 esp_driver_rmt
@@ -31,4 +32,5 @@ INCLUDE_DIRS    "."
                 "display"
                 "bsp/user_lvgl"
                 "bsp/wifi"
+                "bsp/dht11"
 )

@@ -17,6 +17,7 @@
 #include "bsp/user_lvgl/ulvgl.h"
 #include "bsp/user_lvgl/ulvgl_wifi.h"
 #include "bsp/wifi/bsp_wifi.h"
+#include "bsp/dht11/bsp_dht11.h"
 #include "lv_demos.h"
 #include "nvs_flash.h"
 
@@ -37,6 +38,8 @@ void app_main(void)
     // xTaskCreate(pwm_task, "pwm_task", 4096, NULL, 10, NULL);
     xTaskCreate(bsp_rmt_task, "bsp_rmt_task", 8192, NULL, 10, NULL);
     bsp_lcd_display_init();
+    bsp_dht11_init();
+    xTaskCreate(bsp_dht11_task, "dht11_task", DHT11_TASK_STACK, NULL, DHT11_TASK_PRIO, NULL);
     bsp_wifi_init();
 
     if (esp_lv_adapter_lock(-1) == ESP_OK)
