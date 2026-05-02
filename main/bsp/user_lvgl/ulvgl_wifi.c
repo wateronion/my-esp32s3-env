@@ -258,12 +258,12 @@ void ulvgl_wifi_create(lv_obj_t *parent)
 {
     if (parent == NULL) parent = lv_screen_active();
 
-    lv_obj_set_style_bg_color(parent, lv_color_hex(0x1a1a2e), 0);
+    lv_obj_set_style_bg_color(parent, lv_color_hex(0xFFFFFF), 0);
 
     // title
     lv_obj_t *title = lv_label_create(parent);
     lv_label_set_text(title, "WiFi Manager");
-    lv_obj_set_style_text_color(title, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_color(title, lv_color_hex(0x000000), 0);
     lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 5);
 
     // scan / disconnect button
@@ -277,14 +277,14 @@ void ulvgl_wifi_create(lv_obj_t *parent)
 
     // status label
     s_status_label = lv_label_create(parent);
-    lv_obj_set_style_text_color(s_status_label, lv_color_hex(0xAAAAAA), 0);
+    lv_obj_set_style_text_color(s_status_label, lv_color_hex(0x666666), 0);
     lv_obj_align(s_status_label, LV_ALIGN_TOP_MID, 0, 65);
 
     // connected badge (top-right, hidden until connected)
     s_conn_indicator = lv_label_create(parent);
     lv_label_set_text(s_conn_indicator, LV_SYMBOL_WIFI " Connected");
-    lv_obj_set_style_text_color(s_conn_indicator, lv_color_hex(0x00FF00), 0);
-    lv_obj_set_style_bg_color(s_conn_indicator, lv_color_hex(0x003300), 0);
+    lv_obj_set_style_text_color(s_conn_indicator, lv_color_hex(0x006600), 0);
+    lv_obj_set_style_bg_color(s_conn_indicator, lv_color_hex(0xCCFFCC), 0);
     lv_obj_set_style_bg_opa(s_conn_indicator, LV_OPA_COVER, 0);
     lv_obj_set_style_pad_all(s_conn_indicator, 4, 0);
     lv_obj_set_style_radius(s_conn_indicator, 4, 0);
@@ -301,13 +301,13 @@ void ulvgl_wifi_create(lv_obj_t *parent)
     lv_obj_set_style_pad_all(s_wifi_list, 4, 0);
     lv_obj_set_scrollbar_mode(s_wifi_list, LV_SCROLLBAR_MODE_AUTO);
     lv_obj_set_style_border_width(s_wifi_list, 1, 0);
-    lv_obj_set_style_border_color(s_wifi_list, lv_color_hex(0x333366), 0);
-    lv_obj_set_style_bg_color(s_wifi_list, lv_color_hex(0x16213e), 0);
+    lv_obj_set_style_border_color(s_wifi_list, lv_color_hex(0xCCCCCC), 0);
+    lv_obj_set_style_bg_color(s_wifi_list, lv_color_hex(0xF5F5F5), 0);
 
     // hint inside list
     lv_obj_t *hint = lv_label_create(s_wifi_list);
     lv_label_set_text(hint, "Press Scan to search\nfor WiFi networks");
-    lv_obj_set_style_text_color(hint, lv_color_hex(0x666688), 0);
+    lv_obj_set_style_text_color(hint, lv_color_hex(0x999999), 0);
     lv_obj_align(hint, LV_ALIGN_CENTER, 0, 0);
 
     // show saved SSID hint on boot
@@ -317,7 +317,7 @@ void ulvgl_wifi_create(lv_obj_t *parent)
         lv_obj_t *reconnect_label = lv_label_create(parent);
         lv_label_set_text_fmt(reconnect_label,
             "Auto-reconnecting\nto %s...", saved);
-        lv_obj_set_style_text_color(reconnect_label, lv_color_hex(0xFFAA00), 0);
+        lv_obj_set_style_text_color(reconnect_label, lv_color_hex(0xCC6600), 0);
         lv_obj_align(reconnect_label, LV_ALIGN_BOTTOM_MID, 0, -5);
     }
 
