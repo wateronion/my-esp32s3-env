@@ -22,4 +22,9 @@ typedef void (*bsp_wifi_scan_done_cb_t)(bsp_wifi_ap_info_t *ap_list, uint16_t ap
 esp_err_t bsp_wifi_init(void);
 esp_err_t bsp_wifi_scan(bsp_wifi_scan_done_cb_t callback);
 esp_err_t bsp_wifi_connect(const char *ssid, const char *password);
+esp_err_t bsp_wifi_disconnect(void);
+esp_err_t bsp_wifi_reconnect(void);
+bool     bsp_wifi_is_connected(void);
+bool     bsp_wifi_has_saved(void);
+int      bsp_wifi_get_saved_ssid(char *ssid, size_t size);
 esp_err_t bsp_wifi_deinit(void);
