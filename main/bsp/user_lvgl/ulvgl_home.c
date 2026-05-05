@@ -36,7 +36,7 @@ static void ac_btn_cb(lv_event_t *e)
     if (s_ac_label)
         lv_label_set_text(s_ac_label, on ? "AC: ON" : "AC: OFF");
     if (s_ac_btn)
-        lv_obj_set_style_bg_color(s_ac_btn, on ? lv_color_hex(0x0066CC) : lv_color_hex(0x0f3460), 0);
+        lv_obj_set_style_bg_color(s_ac_btn, on ? lv_color_hex(0x1565C0) : lv_color_hex(0x2196F3), 0);
 }
 
 static void light_btn_cb(lv_event_t *e)
@@ -46,7 +46,7 @@ static void light_btn_cb(lv_event_t *e)
     if (s_light_label)
         lv_label_set_text(s_light_label, on ? "Light: ON" : "Light: OFF");
     if (s_light_btn)
-        lv_obj_set_style_bg_color(s_light_btn, on ? lv_color_hex(0xCCAA00) : lv_color_hex(0x0f3460), 0);
+        lv_obj_set_style_bg_color(s_light_btn, on ? lv_color_hex(0xE65100) : lv_color_hex(0xFF9800), 0);
 }
 
 static void curtain_open_cb(lv_event_t *e)
@@ -88,49 +88,51 @@ void ulvgl_home_create(lv_obj_t *parent)
     s_home_scr = parent;
     if (parent == NULL) parent = lv_screen_active();
 
-    /* Dark background */
-    lv_obj_set_style_bg_color(parent, lv_color_hex(0x1a1a2e), 0);
+    /* White background */
+    lv_obj_set_style_bg_color(parent, lv_color_hex(0xFFFFFF), 0);
 
     /* Title */
     lv_obj_t *title = lv_label_create(parent);
     lv_label_set_text(title, "Smart Home");
-    lv_obj_set_style_text_color(title, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_color(title, lv_color_hex(0x000000), 0);
     lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 10);
 
     /* Temperature Card */
     lv_obj_t *temp_card = lv_obj_create(parent);
     lv_obj_set_size(temp_card, 105, 80);
     lv_obj_align(temp_card, LV_ALIGN_TOP_LEFT, 10, 45);
-    lv_obj_set_style_bg_color(temp_card, lv_color_hex(0x16213e), 0);
-    lv_obj_set_style_border_width(temp_card, 0, 0);
+    lv_obj_set_style_bg_color(temp_card, lv_color_hex(0xF0F8FF), 0);
+    lv_obj_set_style_border_width(temp_card, 1, 0);
+    lv_obj_set_style_border_color(temp_card, lv_color_hex(0xDDDDDD), 0);
     lv_obj_set_style_radius(temp_card, 8, 0);
 
     s_temp_label = lv_label_create(temp_card);
     lv_label_set_text(s_temp_label, "-- C");
-    lv_obj_set_style_text_color(s_temp_label, lv_color_hex(0x00FF88), 0);
+    lv_obj_set_style_text_color(s_temp_label, lv_color_hex(0x00AA55), 0);
     lv_obj_center(s_temp_label);
 
     lv_obj_t *temp_sub = lv_label_create(temp_card);
     lv_label_set_text(temp_sub, "Temperature");
-    lv_obj_set_style_text_color(temp_sub, lv_color_hex(0x888888), 0);
+    lv_obj_set_style_text_color(temp_sub, lv_color_hex(0x999999), 0);
     lv_obj_align(temp_sub, LV_ALIGN_BOTTOM_MID, 0, -4);
 
     /* Humidity Card */
     lv_obj_t *humid_card = lv_obj_create(parent);
     lv_obj_set_size(humid_card, 105, 80);
     lv_obj_align(humid_card, LV_ALIGN_TOP_RIGHT, -10, 45);
-    lv_obj_set_style_bg_color(humid_card, lv_color_hex(0x16213e), 0);
-    lv_obj_set_style_border_width(humid_card, 0, 0);
+    lv_obj_set_style_bg_color(humid_card, lv_color_hex(0xF0F8FF), 0);
+    lv_obj_set_style_border_width(humid_card, 1, 0);
+    lv_obj_set_style_border_color(humid_card, lv_color_hex(0xDDDDDD), 0);
     lv_obj_set_style_radius(humid_card, 8, 0);
 
     s_humid_label = lv_label_create(humid_card);
     lv_label_set_text(s_humid_label, "--%");
-    lv_obj_set_style_text_color(s_humid_label, lv_color_hex(0x00AAFF), 0);
+    lv_obj_set_style_text_color(s_humid_label, lv_color_hex(0x0077CC), 0);
     lv_obj_center(s_humid_label);
 
     lv_obj_t *humid_sub = lv_label_create(humid_card);
     lv_label_set_text(humid_sub, "Humidity");
-    lv_obj_set_style_text_color(humid_sub, lv_color_hex(0x888888), 0);
+    lv_obj_set_style_text_color(humid_sub, lv_color_hex(0x999999), 0);
     lv_obj_align(humid_sub, LV_ALIGN_BOTTOM_MID, 0, -4);
 
     /* AC Button */
@@ -138,7 +140,7 @@ void ulvgl_home_create(lv_obj_t *parent)
     lv_obj_set_size(s_ac_btn, 105, 48);
     lv_obj_align(s_ac_btn, LV_ALIGN_TOP_LEFT, 10, 140);
     lv_obj_add_event_cb(s_ac_btn, ac_btn_cb, LV_EVENT_CLICKED, NULL);
-    lv_obj_set_style_bg_color(s_ac_btn, lv_color_hex(0x0f3460), 0);
+    lv_obj_set_style_bg_color(s_ac_btn, lv_color_hex(0x2196F3), 0);
     lv_obj_set_style_radius(s_ac_btn, 8, 0);
 
     s_ac_label = lv_label_create(s_ac_btn);
@@ -151,7 +153,7 @@ void ulvgl_home_create(lv_obj_t *parent)
     lv_obj_set_size(s_light_btn, 105, 48);
     lv_obj_align(s_light_btn, LV_ALIGN_TOP_RIGHT, -10, 140);
     lv_obj_add_event_cb(s_light_btn, light_btn_cb, LV_EVENT_CLICKED, NULL);
-    lv_obj_set_style_bg_color(s_light_btn, lv_color_hex(0x0f3460), 0);
+    lv_obj_set_style_bg_color(s_light_btn, lv_color_hex(0xFF9800), 0);
     lv_obj_set_style_radius(s_light_btn, 8, 0);
 
     s_light_label = lv_label_create(s_light_btn);
@@ -162,7 +164,7 @@ void ulvgl_home_create(lv_obj_t *parent)
     /* Curtain Status */
     s_curtain_label = lv_label_create(parent);
     lv_label_set_text(s_curtain_label, "Curtain: Closed");
-    lv_obj_set_style_text_color(s_curtain_label, lv_color_hex(0xCCCCCC), 0);
+    lv_obj_set_style_text_color(s_curtain_label, lv_color_hex(0x666666), 0);
     lv_obj_align(s_curtain_label, LV_ALIGN_TOP_LEFT, 10, 205);
 
     /* Curtain Open Button */
@@ -170,7 +172,7 @@ void ulvgl_home_create(lv_obj_t *parent)
     lv_obj_set_size(open_btn, 100, 36);
     lv_obj_align(open_btn, LV_ALIGN_TOP_LEFT, 10, 235);
     lv_obj_add_event_cb(open_btn, curtain_open_cb, LV_EVENT_CLICKED, NULL);
-    lv_obj_set_style_bg_color(open_btn, lv_color_hex(0x1a6b3c), 0);
+    lv_obj_set_style_bg_color(open_btn, lv_color_hex(0x4CAF50), 0);
     lv_obj_set_style_radius(open_btn, 6, 0);
     lv_obj_t *open_lbl = lv_label_create(open_btn);
     lv_label_set_text(open_lbl, "Open");
@@ -182,7 +184,7 @@ void ulvgl_home_create(lv_obj_t *parent)
     lv_obj_set_size(close_btn, 100, 36);
     lv_obj_align(close_btn, LV_ALIGN_TOP_RIGHT, -10, 235);
     lv_obj_add_event_cb(close_btn, curtain_close_cb, LV_EVENT_CLICKED, NULL);
-    lv_obj_set_style_bg_color(close_btn, lv_color_hex(0x8b3a3a), 0);
+    lv_obj_set_style_bg_color(close_btn, lv_color_hex(0xF44336), 0);
     lv_obj_set_style_radius(close_btn, 6, 0);
     lv_obj_t *close_lbl = lv_label_create(close_btn);
     lv_label_set_text(close_lbl, "Close");
